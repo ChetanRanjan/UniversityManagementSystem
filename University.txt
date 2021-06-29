@@ -1,0 +1,7 @@
+10|Raja Rani Institute of Technology|Mysore|Corporation|15
+21|REVA Institute Of Technology|Bangalore|Yellahanka Rural|74
+195|SEA College of Engineering And Technology|Bangalore|Ektanagar|181
+53|Siddhalinga University of Technology|Tumkur|Tumkur lake branch|191
+51|East Point Institute of Technology|Bangalore|Avalahalli|201
+12|Saptagiri Institute of Technology|Bangalore|Majestic|221
+43|Miranda Institute of Technology|Bangalore|New Thippsandra|247
