@@ -164,6 +164,7 @@ public:
 
 			}
 		}
+		fileIn.close();
 
 		if(stringMatch(operation, "name")){
 			vector<int> indexCollector;
@@ -264,6 +265,134 @@ public:
 		this->updateFile(temp);
 
 	}
+
+	void deleteRecord(string operation){
+		vector<string> temp;
+		string line;
+		fstream fileIn;
+		fileIn.open(fileName, ios::in);
+		if(fileIn.is_open()){
+			while (getline(fileIn, line)){
+				temp.push_back(line);
+			}
+		}
+		fileIn.close();
+		if(stringMatch(operation, "name")){
+			vector<int> indexCollector;
+			string collegeName = "";
+			cout<<"Enter the college name to delete"<<endl;
+			getline(cin, collegeName);
+			if(collegeName==""){
+				getline(cin, collegeName);
+			}
+			for(int i = 0; i < temp.size(); i++){
+				if(stringMatch(temp[i], collegeName)){
+					indexCollector.push_back(i);
+				}
+			}
+
+			cout<<"Total Records found: "<<indexCollector.size()<<endl;
+			if(indexCollector.size()==1){
+				int val = indexCollector[0];
+				deleteData_UpdateFile(temp, val);
+			}
+			else{
+				string collegeBranch;
+				cout<<"Enter university branch to delete record "<<endl;
+				getline(cin, collegeBranch);
+				if(collegeBranch==""){
+					getline(cin, collegeBranch);
+				}
+				for(int i = 0; i < indexCollector.size(); i++){
+					if(stringMatch(temp[indexCollector[i]], collegeBranch)){
+						deleteData_UpdateFile(temp, i);
+						break;
+					}
+				}
+			}
+		}
+
+		else if(stringMatch(operation, "rank")){
+			vector<int> indexCollector;
+			string collegeRank;
+			int rank;
+			cout<<"Enter the college rank to delete"<<endl;
+			getline(cin, collegeRank);
+			if(collegeRank == ""){
+				getline(cin, collegeRank);
+			}
+			rank = stoi(collegeRank);
+			for(int i = 0; i < temp.size(); i++){
+				if(this->getRank(temp[i]) == rank){
+					indexCollector.push_back(i);
+				}
+			}
+			cout<<"Total Records found: "<<indexCollector.size()<<endl;
+			if(indexCollector.size()==1){
+				int val = indexCollector[0];
+				deleteData_UpdateFile(temp, val);
+			}
+			else{
+				string collegeName = "";
+				int index[indexCollector.size()];
+				cout<<"Enter the college name to delete"<<endl;
+				getline(cin, collegeName);
+				if(collegeName==""){
+					getline(cin, collegeName);
+				}
+				for(int i = 0; i < indexCollector.size(); i++){
+					if(stringMatch(temp[indexCollector[i]], collegeName)){
+						index[i] = indexCollector[i];
+					}
+				}
+				cout<<"Total Records found: "<<(sizeof(index)/sizeof(index[0]))<<endl;
+				if((  sizeof(index)/sizeof(index[0])  ) ==1){
+					int val = index[0];
+					deleteData_UpdateFile(temp, val);
+				}
+				else {
+					string collegeBranch;
+					cout<<"Enter university branch to delete record "<<endl;
+					getline(cin, collegeBranch);
+					if(collegeBranch==""){
+						getline(cin, collegeBranch);
+					}
+					for(int i = 0; i < (  sizeof(index)/sizeof(index[0])  ); i++){
+						if(index[i]!=0){
+							if(stringMatch(temp[index[i]], collegeBranch)){
+								deleteData_UpdateFile(temp, index[i]);
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	void deleteData_UpdateFile(vector<string> &temp, int ind){
+		temp.erase(temp.begin()+ind);
+		this->updateFile(temp);
+	}
+
+	void displayAllRecord(){
+		vector<string> temp;
+		string line;
+		fstream fileIn;
+		fileIn.open(fileName, ios::in);
+		cout<< "Records available "<<endl;
+		cout<<"------------------------------"<<endl;
+		if(fileIn.is_open()){
+			while (getline(fileIn, line)){
+				cout<<line<<endl;
+
+			}
+		}
+		cout<<"------------------------------"<<endl;
+		cout<<"Total available records :"<<temp.size()<<endl;
+		fileIn.close();
+
+	}
+
 private:
 
 	int getRank(string mainString){
@@ -498,16 +627,17 @@ int main(){
             	getline(cin, operation);
             }
             if(stringMatch(operation, "view")){
-            	cout<<"Records can be displayed by sorted and viewed by below order"<<endl<<endl;
-            	cout<<"Alphabetical order"<<endl<<"Rank order"<<endl;
+            	fileOps.displayAllRecord();
 			}
             else if(stringMatch(operation, "create")){
             	fileOps.createUserRecords();
             }
             else if(stringMatch(operation, "sort")){
-            	cout<<"Records can be sorted and viewed by below order"<<endl<<endl;
+            	cout<<"Records can be sorted and viewed by below order: "<<endl;
+            	cout<<"-------------------------------"<<endl;
             	cout<<"university name order"<<endl<<"Rank order"<<endl;
             	cout<<"Enter operation from above to sort"<<endl;
+            	cout<<"-------------------------------"<<endl;
             	string sortOperation;
             	getline(cin, sortOperation);
 				if(sortOperation==""){
@@ -516,8 +646,10 @@ int main(){
             	sortOps.sortRank(sortOperation);
             }
             else if(stringMatch(operation, "update")){
-            	cout<<"Records can be updated by below operations: "<<endl<<endl;
-            	cout<< "Name"<<endl<<"Rank"<<endl<<endl;
+            	cout<<"Records can be updated by below operations: "<<endl;
+            	cout<<"-------------------------------"<<endl;
+            	cout<< "Name"<<endl<<"Rank"<<endl;
+            	cout<<"-------------------------------"<<endl;
             	cout<<"Enter operation from above to update"<<endl;
             	string updateOperation;
             	getline(cin, updateOperation);
@@ -527,10 +659,21 @@ int main(){
             	fileOps.updateRecord(updateOperation);
             }
             else if(stringMatch(operation, "delete")){
+            	cout<<"Records can be delete by below operations: "<<endl;
+            	cout<<"-------------------------------"<<endl;
+				cout<< "Name"<<endl<<"Rank"<<endl;
+				cout<<"-------------------------------"<<endl;
+				cout<<"Enter operation from above to delete"<<endl;
+				string deleteOperation;
+				getline(cin, deleteOperation);
+				if(deleteOperation==""){
+					getline(cin, deleteOperation);
+				}
+				fileOps.deleteRecord(deleteOperation);
 
             }
             else{
-            	cout<<"Invalid Operation exiting application";
+            	cout<<"Invalid Operation exiting application"<<endl;
             }
         }
         else{
@@ -543,5 +686,6 @@ int main(){
     else{
         cout << "Invalid selection exiting application" << endl;
     }
+    cout<<"Exiting application"<<endl;
     return 0;
 }
