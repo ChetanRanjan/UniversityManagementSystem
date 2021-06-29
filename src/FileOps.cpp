@@ -327,9 +327,8 @@ public:
 		if(stringMatch(operation, "name")){
 			vector <string> data = this->currentFileContent();
 			int lastInd = data.size();
-			this->quickSort(data, 0, lastInd);
-
-
+			this->quickSort(data, 0, lastInd-1, 0, 1);
+			this->displayRecords(data);
 		}
 		else if(stringMatch(operation, "rank")){
 			vector <string> data = this->currentFileContent();
@@ -377,6 +376,7 @@ private:
 		}
 		return lastIndex;
 	}
+
 	void quickSort(vector<string> &data, int low, int high){
 		if(low < high){
 			int pivotVar = this->partion(data, low, high);
@@ -389,7 +389,7 @@ private:
 		int pivot = this->getRank(data[high]);
 		int i = low-1;
 		for(int j=low; j<=(high-1); j++){
-			if((this->getRank(data[j])) <= pivot){
+			if( ( this->getRank(data[j]) ) <= pivot){
 				i++;
 				swap(data[i], data[j]);
 			}
@@ -412,6 +412,47 @@ private:
 		else
 			return false;
 	}
+
+	int getCharIndex(string mainString, int count){
+		char delimiter = '|';
+		int lastIndex = -1;
+		int occurance = -1;
+		for(int i = 0; i <mainString.length(); i++){
+			if(mainString[i] == delimiter){
+				if(++occurance == count){
+					lastIndex = i;
+					break;
+				}
+			}
+		}
+		return lastIndex;
+	}
+	string getStringName(string value, int iIndex, int lIndex){
+	    int ii = getCharIndex(value, iIndex)+1;
+	    int ij = getCharIndex(value, lIndex);
+	    return value.substr(ii, ij-ii);
+	}
+
+	void quickSort(vector<string> &data, int low, int high, int charStartIndex, int charEndIndex){
+		if(low < high){
+			int pivotVar = this->partion(data, low, high, charStartIndex, charEndIndex);
+			this->quickSort(data, low, pivotVar-1, charStartIndex, charEndIndex);
+			this->quickSort(data, pivotVar+1, high, charStartIndex, charEndIndex);
+		}
+	}
+	int partion(vector<string> &data, int low, int high, int charStartIndex, int charEndIndex){
+		string pivot = this->getStringName(data[high], charStartIndex, charEndIndex);
+		int i = low - 1;
+		for(int j = low; j<=(high-1); j++){
+			if(  (this->getStringName(data[j], charStartIndex, charEndIndex))<= pivot){
+				i++;
+				swap(data[i], data[j]);
+			}
+		}
+		swap(data[i+1], data[high]);
+		return (i+1);
+	}
+
 
 };
 
