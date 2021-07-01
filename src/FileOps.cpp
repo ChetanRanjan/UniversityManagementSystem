@@ -16,6 +16,7 @@ using std::ifstream;
 using std::ofstream;
 using std::getline;
 using namespace std;
+
 class FileOperation{
 
 public:
@@ -40,11 +41,19 @@ public:
 		}
 	}
 	void createRecords(string data[]){
+		string testVar;
 		ofstream fileOut;
 		ifstream fileIn;
 		fileIn.open(fileName);
 		fileOut.open(fileName, ios::app);
-		if(fileIn.is_open()){
+		while(!fileIn.eof()){
+			getline(fileIn, testVar);
+		}
+		if(fileIn.is_open() && (testVar == "")){
+			fileOut<<data[0]<<"|"<<data[1]<<"|"<<data[2]<<"|"<<data[3]<<"|"<<data[4]<<endl;
+		}
+		else if(fileIn.is_open() && (testVar!= "")){
+			fileOut<<endl;
 			fileOut<<data[0]<<"|"<<data[1]<<"|"<<data[2]<<"|"<<data[3]<<"|"<<data[4]<<endl;
 		}
 		cout << "data updated successully \n";
@@ -66,7 +75,6 @@ public:
 		cout << "data updated successully \n";
 		fileIn.close();
 		fileOut.close();
-
 	}
 	vector<string> currentFileContent(){
 		vector<string> temp;
@@ -82,7 +90,6 @@ public:
 		return temp;
 	}
 	void createUserRecords(){
-
 		string data[5];
 		int universityCount;
 		cout<< "Enter the total number of universities Records to be created \n";
@@ -114,8 +121,8 @@ public:
 			if(data[4].empty()){
 			  getline (cin, data[4]);
 			}
+			this->createRecords(data);
 		}
-		this->createRecords(data);
 	}
 	string getUserRecords(){
 		string record;
@@ -153,7 +160,6 @@ public:
 	}
 
 	void updateRecord(string operation){
-
 		vector<string> temp;
 		string line;
 		fstream fileIn;
@@ -161,11 +167,9 @@ public:
 		if(fileIn.is_open()){
 			while (getline(fileIn, line)){
 				temp.push_back(line);
-
 			}
 		}
 		fileIn.close();
-
 		if(stringMatch(operation, "name")){
 			vector<int> indexCollector;
 			string collegeName = "";
@@ -224,19 +228,31 @@ public:
 			else{
 				string collegeName = "";
 				int index[indexCollector.size()];
+				//initialising the index array with -1
+				for(int i = 0; i < (sizeof(index)/sizeof(index[0])); i++){
+					index[i] = -1;
+				}
 				cout<<"Enter the college name to update"<<endl;
 				getline(cin, collegeName);
 				if(collegeName==""){
 					getline(cin, collegeName);
 				}
+				int decRec = 0;
 				for(int i = 0; i < indexCollector.size(); i++){
 					if(stringMatch(temp[indexCollector[i]], collegeName)){
 						index[i] = indexCollector[i];
+						decRec++;
 					}
 				}
-				cout<<"Total Records found: "<<(sizeof(index)/sizeof(index[0]))<<endl;
-				if((  sizeof(index)/sizeof(index[0])  ) ==1){
-					int val = index[0];
+				cout<<"Total Records found: "<<decRec<<endl;
+				if(decRec ==1){
+					int val;
+					for(int i = 0; i<(sizeof(index)/sizeof(index[0])); i++){
+						if(index[i]>=0){
+							val = index[i];
+							break;
+						}
+					}
 					modifyRecord(temp, val);
 				}
 				else {
@@ -247,7 +263,7 @@ public:
 						getline(cin, collegeBranch);
 					}
 					for(int i = 0; i < (  sizeof(index)/sizeof(index[0])  ); i++){
-						if(index[i]!=0){
+						if(index[i]>=0){
 							if(stringMatch(temp[index[i]], collegeBranch)){
 								modifyRecord(temp, index[i]);
 								break;
@@ -263,7 +279,6 @@ public:
 		string rec = this->getUserRecords();
 		temp.push_back(rec);
 		this->updateFile(temp);
-
 	}
 
 	void deleteRecord(string operation){
@@ -311,7 +326,6 @@ public:
 				}
 			}
 		}
-
 		else if(stringMatch(operation, "rank")){
 			vector<int> indexCollector;
 			string collegeRank;
@@ -375,7 +389,7 @@ public:
 	}
 
 	void displayAllRecord(){
-		vector<string> temp;
+		int count = 0;
 		string line;
 		fstream fileIn;
 		fileIn.open(fileName, ios::in);
@@ -383,18 +397,15 @@ public:
 		cout<<"------------------------------"<<endl;
 		if(fileIn.is_open()){
 			while (getline(fileIn, line)){
+				count++;
 				cout<<line<<endl;
-
 			}
 		}
 		cout<<"------------------------------"<<endl;
-		cout<<"Total available records :"<<temp.size()<<endl;
+		cout<<"Total available records :"<<count<<endl;
 		fileIn.close();
-
 	}
-
 private:
-
 	int getRank(string mainString){
 		return stoi(mainString.substr(this->getLastOccurance(mainString)+1, mainString.size()));
 	}
@@ -441,7 +452,6 @@ private:
 		}
 		return strArray;
 	}
-
 };
 
 class sortingOperation{
@@ -456,7 +466,19 @@ public:
 		if(stringMatch(operation, "name")){
 			vector <string> data = this->currentFileContent();
 			int lastInd = data.size();
-			this->quickSort(data, 0, lastInd-1, 0, 1);
+			this->quickSort(data, 0, lastInd-1, serialNumber, universityName);
+			this->displayRecords(data);
+		}
+		else if(stringMatch(operation, "city")){
+			vector <string> data = this->currentFileContent();
+			int lastInd = data.size();
+			this->quickSort(data, 0, lastInd-1, universityName, universityCity);
+			this->displayRecords(data);
+		}
+		else if(stringMatch(operation, "branch")){
+			vector <string> data = this->currentFileContent();
+			int lastInd = data.size();
+			this->quickSort(data, 0, lastInd-1, universityCity, universityBanch);
 			this->displayRecords(data);
 		}
 		else if(stringMatch(operation, "rank")){
@@ -474,10 +496,13 @@ public:
 			cout<<data[i]<<endl;
 		}
 		cout<<"------------------------"<<endl;
-
 	}
 
-private:
+protected:
+	int serialNumber = 0;
+	int universityName = 1;
+	int universityCity = 2;
+	int universityBanch = 3;
 	vector<string> currentFileContent(){
 		vector<string> temp;
 		string line;
@@ -581,8 +606,99 @@ private:
 		swap(data[i+1], data[high]);
 		return (i+1);
 	}
+};
 
+class searchOperation : public sortingOperation{
+public:
+	fstream file;
+	string fileName;
+	char delimiter = '|';
+	vector<string> data;
+	sortingOperation sort;
 
+	void search(string param){
+		string valueString;
+		int valueInt;
+		vector<string> rec;
+		if(stringMatch(convert(param), "name")){
+			data = this->currentFileContent();
+			cout<<"Enter the University Name to Search "<<endl;
+            getline(cin, valueString);
+            if(valueString==""){
+            	getline(cin, valueString);
+            }
+            rec = this->searchData(data, valueString, serialNumber, universityName);
+			this->displayRecords(rec);
+
+		}
+		else if(stringMatch(convert(param), "city")){
+			data = this->currentFileContent();
+			cout<<"Enter the University city to Search "<<endl;
+            getline(cin, valueString);
+            if(valueString==""){
+            	getline(cin, valueString);
+            }
+            rec = this->searchData(data, valueString, universityName, universityCity);
+			this->displayRecords(rec);
+		}
+		else if(stringMatch(convert(param), "branch")){
+			data = this->currentFileContent();
+			cout<<"Enter the University branch to Search "<<endl;
+            getline(cin, valueString);
+            if(valueString==""){
+            	getline(cin, valueString);
+            }
+            rec = this->searchData(data, valueString, universityCity, universityBanch);
+			this->displayRecords(rec);
+		}
+		else if(stringMatch(convert(param), "rank")){
+			data = this->currentFileContent();
+			cout<<"Enter the University rank to Search "<<endl;
+			getline(cin, valueString);
+			if(valueString == ""){
+				getline(cin, valueString);
+			}
+			valueInt = stoi(valueString);
+			rec = this->searchData(data, valueInt);
+			this->displayRecords(rec);
+		}
+	}
+	vector<string> searchData(vector<string> &data, string &var1, int sIndex, int eIndex){
+		vector<string> temp;
+		int i;
+		for(i = 0; i < data.size(); i++){
+			if (stringMatch(this->convert(this->getStringName(data[i], sIndex, eIndex)), this->convert(var1))){
+				temp.push_back(data[i]);
+			}
+		}
+		cout<< "Total match found: "<<temp.size()<<endl;
+		return temp;
+	}
+	vector<string> searchData(vector<string> &data, int var1){
+		vector<string> temp;
+		for(int i = 0; i < data.size(); i++){
+			if (this->getRank(data[i]) == var1){
+				temp.push_back(data[i]);
+			}
+		}
+		cout<< "Total match found: "<<temp.size()<<endl;
+		return temp;
+	}
+
+private:
+	vector<string> currentFileContent(){
+		vector<string> temp;
+		string line;
+		fstream fileIn;
+		fileIn.open(fileName, ios::in);
+		if(fileIn.is_open()){
+			while (getline(fileIn, line)){
+				temp.push_back(line);
+			}
+		}
+		fileIn.close();
+		return temp;
+	}
 };
 
 
@@ -607,81 +723,129 @@ int main(){
 	sortingOperation sortOps;
 	sortOps.fileName= "University.txt";
 
+	searchOperation searchOps;
+	searchOps.fileName = "University.txt";
+
     string login;
     const string adminPassword = "Admin";
     string userPassword;
     string operation = "";
     cout << "Welcome to VTU management system"<< endl;
-    cout<< "Enter \"Admin\" or \"Student\" to apply respective previlages" << endl;
+    cout<< "Enter \"Admin\" or \"Customer\" to apply respective previlages" << endl;
     cin >> login;
     if(convert(login) == "admin"){
         cout << "Enter the Admin password" <<endl;
         cin >> userPassword;
         if(adminPassword == userPassword){
-            cout << "Logged as Admin successfully" << endl;
-            cout<<"Operations permited for admin are as below: "<<endl<<endl;
-            cout<<"view Records"<<endl<<"sort Records"<<endl<<"Create Records"<<endl<<"Update Records"<<endl<<"Delete Records"<<endl<<endl;
-            cout<< "Enter operation to be performed from displayed list: "<<endl;
-            getline(cin, operation);
-            if(operation==""){
-            	getline(cin, operation);
-            }
-            if(stringMatch(operation, "view")){
-            	fileOps.displayAllRecord();
-			}
-            else if(stringMatch(operation, "create")){
-            	fileOps.createUserRecords();
-            }
-            else if(stringMatch(operation, "sort")){
-            	cout<<"Records can be sorted and viewed by below order: "<<endl;
-            	cout<<"-------------------------------"<<endl;
-            	cout<<"university name order"<<endl<<"Rank order"<<endl;
-            	cout<<"Enter operation from above to sort"<<endl;
-            	cout<<"-------------------------------"<<endl;
-            	string sortOperation;
-            	getline(cin, sortOperation);
-				if(sortOperation==""){
+        	cout << "Logged as Admin successfully" << endl;
+			cout<< "Enter \"Exit\" to exit as Admin"<<endl;
+        	while(true){
+				cout<<"Operations permited for admin are as below: "<<endl<<endl;
+				cout<<"view Records"<<endl<<"sort Records"<<endl<<"Create Records"<<endl<<"Update Records"<<endl<<"Search Record"<<endl<<"Delete Records"<<endl<<"Exit Application"<<endl<<endl;
+				cout<< "Enter operation to be performed from displayed list: "<<endl;
+				getline(cin, operation);
+				if(operation==""){
+					getline(cin, operation);
+				}
+				if(stringMatch(operation, "view")){
+					fileOps.displayAllRecord();
+				}
+				else if(stringMatch(operation, "create")){
+					fileOps.createUserRecords();
+				}
+				else if(stringMatch(operation, "sort")){
+					cout<<"Records can be sorted and viewed by below order: "<<endl;
+					cout<<"-------------------------------"<<endl;
+					cout<<"university name order"<<endl<<"Rank order"<<endl;
+					cout<<"Enter operation from above to sort"<<endl;
+					cout<<"-------------------------------"<<endl;
+					string sortOperation;
 					getline(cin, sortOperation);
+					if(sortOperation==""){
+						getline(cin, sortOperation);
+					}
+					sortOps.sortRank(sortOperation);
 				}
-            	sortOps.sortRank(sortOperation);
-            }
-            else if(stringMatch(operation, "update")){
-            	cout<<"Records can be updated by below operations: "<<endl;
-            	cout<<"-------------------------------"<<endl;
-            	cout<< "Name"<<endl<<"Rank"<<endl;
-            	cout<<"-------------------------------"<<endl;
-            	cout<<"Enter operation from above to update"<<endl;
-            	string updateOperation;
-            	getline(cin, updateOperation);
-				if(updateOperation==""){
+				else if(stringMatch(operation, "update")){
+					cout<<"Records can be updated by below operations: "<<endl;
+					cout<<"-------------------------------"<<endl;
+					cout<< "Name"<<endl<<"Rank"<<endl;
+					cout<<"-------------------------------"<<endl;
+					cout<<"Enter operation from above to update"<<endl;
+					string updateOperation;
 					getline(cin, updateOperation);
+					if(updateOperation==""){
+						getline(cin, updateOperation);
+					}
+					fileOps.updateRecord(updateOperation);
 				}
-            	fileOps.updateRecord(updateOperation);
-            }
-            else if(stringMatch(operation, "delete")){
-            	cout<<"Records can be delete by below operations: "<<endl;
-            	cout<<"-------------------------------"<<endl;
-				cout<< "Name"<<endl<<"Rank"<<endl;
-				cout<<"-------------------------------"<<endl;
-				cout<<"Enter operation from above to delete"<<endl;
-				string deleteOperation;
-				getline(cin, deleteOperation);
-				if(deleteOperation==""){
+				else if(stringMatch(operation, "search")){
+					cout<<"Records can be search by below operations: "<<endl;
+					cout<<"-------------------------------"<<endl;
+					cout<< "University Name"<<endl<<"University city"<<endl<<"university branch"<<endl<<"university Rank"<<endl;
+					cout<<"-------------------------------"<<endl;
+					cout<<"Enter operation from above to search"<<endl;
+					string searchOperation;
+					getline(cin, searchOperation);
+					if(searchOperation==""){
+						getline(cin, searchOperation);
+					}
+					searchOps.search(searchOperation);
+				}
+				else if(stringMatch(operation, "delete")){
+					cout<<"Records can be delete by below operations: "<<endl;
+					cout<<"-------------------------------"<<endl;
+					cout<< "Name"<<endl<<"Rank"<<endl;
+					cout<<"-------------------------------"<<endl;
+					cout<<"Enter operation from above to delete"<<endl;
+					string deleteOperation;
 					getline(cin, deleteOperation);
-				}
-				fileOps.deleteRecord(deleteOperation);
+					if(deleteOperation==""){
+						getline(cin, deleteOperation);
+					}
+					fileOps.deleteRecord(deleteOperation);
 
-            }
-            else{
-            	cout<<"Invalid Operation exiting application"<<endl;
-            }
+				}
+				else if(stringMatch(operation, "exit")){
+					cout<<endl<<endl;
+					break;
+				}
+				else{
+					cout<<"Invalid Operation "<<endl;
+				}
+				cout<<endl;
+        	}
         }
         else{
             cout << "Invalid password exiting application"<< endl;
         }
     }
-    else if(convert(login) == "student"){
+    else if(convert(login) == "customer"){
         cout << "Logged as Student successfully" << endl;
+		cout<< "Enter \"Exit\" to exit as Customer"<<endl;
+		while(true){
+			cout<<"Operations permited for customer are as below: "<<endl<<endl;
+			cout<<"view Records"<<endl<<"Search Record"<<endl<<"Exit Application"<<endl<<endl;
+			if(operation==""){
+				getline(cin, operation);
+			}
+			if(stringMatch(operation, "view")){
+				fileOps.displayAllRecord();
+			}
+			else if(stringMatch(operation, "search")){
+				cout<<"Records can be search by below operations: "<<endl;
+				cout<<"-------------------------------"<<endl;
+				cout<< "University Name"<<endl<<"University city"<<endl<<"university branch"<<endl<<"university Rank"<<endl;
+				cout<<"-------------------------------"<<endl;
+				cout<<"Enter operation from above to search"<<endl;
+				string searchOperation;
+				getline(cin, searchOperation);
+				if(searchOperation==""){
+					getline(cin, searchOperation);
+				}
+				searchOps.search(searchOperation);
+			}
+		}
     }
     else{
         cout << "Invalid selection exiting application" << endl;
