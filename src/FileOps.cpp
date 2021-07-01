@@ -718,14 +718,14 @@ bool stringMatch(string var1, string var2){
 
 int main(){
 	FileOperation fileOps;
-	fileOps.fileName= "University.txt";
+	//change here and give absolute path with fileName and its extension if necessary
+	string file = "Universty.txt";
 
+	fileOps.fileName= file;
 	sortingOperation sortOps;
-	sortOps.fileName= "University.txt";
-
+	sortOps.fileName= file;
 	searchOperation searchOps;
-	searchOps.fileName = "University.txt";
-
+	searchOps.fileName = file;
     string login;
     const string adminPassword = "Admin";
     string userPassword;
