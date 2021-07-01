@@ -740,8 +740,10 @@ int main(){
         	cout << "Logged as Admin successfully" << endl;
 			cout<< "Enter \"Exit\" to exit as Admin"<<endl;
         	while(true){
-				cout<<"Operations permited for admin are as below: "<<endl<<endl;
-				cout<<"view Records"<<endl<<"sort Records"<<endl<<"Create Records"<<endl<<"Update Records"<<endl<<"Search Record"<<endl<<"Delete Records"<<endl<<"Exit Application"<<endl<<endl;
+				cout<<"Operations permitted for admin are as below: "<<endl;
+				cout<<"-------------------------------"<<endl;
+				cout<<"view Records"<<endl<<"sort Records"<<endl<<"Create Records"<<endl<<"Update Records"<<endl<<"Search Record"<<endl<<"Delete Records"<<endl<<"Exit Application"<<endl;
+				cout<<"-------------------------------"<<endl;
 				cout<< "Enter operation to be performed from displayed list: "<<endl;
 				getline(cin, operation);
 				if(operation==""){
@@ -824,8 +826,12 @@ int main(){
         cout << "Logged as Student successfully" << endl;
 		cout<< "Enter \"Exit\" to exit as Customer"<<endl;
 		while(true){
-			cout<<"Operations permited for customer are as below: "<<endl<<endl;
-			cout<<"view Records"<<endl<<"Search Record"<<endl<<"Exit Application"<<endl<<endl;
+			cout<<"Operations permitted for customer are as below: "<<endl;
+			cout<<"-------------------------------"<<endl;
+			cout<<"view Records"<<endl<<"Search Record"<<endl<<"Exit Application"<<endl;
+			cout<<"-------------------------------"<<endl;
+			cout<< "Enter operation to be performed from displayed list: "<<endl;
+			getline(cin, operation);
 			if(operation==""){
 				getline(cin, operation);
 			}
@@ -845,11 +851,19 @@ int main(){
 				}
 				searchOps.search(searchOperation);
 			}
+			else if(stringMatch(operation, "exit")){
+				cout<<endl<<endl;
+				break;
+			}
+			else{
+				cout<<"Invalid Operation "<<endl;
+			}
+			cout<<endl<<endl;
 		}
     }
     else{
         cout << "Invalid selection exiting application" << endl;
     }
-    cout<<"Exiting application"<<endl;
+    cout<<"Exiting application!"<<endl;
     return 0;
 }
